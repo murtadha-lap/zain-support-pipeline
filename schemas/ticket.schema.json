@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/murtadha-lap/zain-support-pipeline/schemas/ticket.schema.json",
+  "title": "Support ticket record (dataset row)",
+  "description": "One row of the synthetic Iraqi-dialect support dataset. `text` is what the customer wrote; `labels` is the gold answer the pipeline must produce; `draft_reply` is the gold first response used for SFT; `meta` is bookkeeping and is never shown to the model. Confidence is NOT a label: at inference it comes from the log-probability of the category token.",
+  "type": "object",
+  "required": ["id", "text", "channel", "created_at", "labels", "draft_reply", "meta"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "pattern": "^tkt_[0-9]{6}$" },
+    "text": { "type": "string", "minLength": 5, "description": "Raw customer message, Iraqi dialect, may contain typos, Arabizi, English." },
+    "channel": { "enum": ["app", "whatsapp", "telegram"] },
+    "created_at": { "type": "string", "format": "date-time", "description": "Needed to resolve relative dates like البارحة / يوم الأحد." },
+
+    "labels": {
+      "type": "object",
+      "required": ["category", "priority", "fields", "flags", "escalate"],
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "description": "Primary issue. Topic 06 names the first five; the other four were added for a wallet operator and are confirmed with support agents in week 1.",
+          "enum": [
+            "failed_transfer",
+            "wrong_recipient",
+            "login_problem",
+            "agent_dispute",
+            "card_issue",
+            "topup_balance",
+            "bill_payment",
+            "suspected_fraud",
+            "general_question"
+          ]
+        },
+        "secondary_category": {
+          "description": "Set only when the ticket contains a second, separate problem (mixed_issue). The pipeline never splits these; it escalates.",
+          "anyOf": [ { "$ref": "#/properties/labels/properties/category" }, { "type": "null" } ]
+        },
+        "priority": {
+          "enum": ["high", "medium", "low"],
+          "description": "Starts from the category default (see routing table) and may be raised: money already gone, large amount, repeat complaint, account locked out."
+        },
+        "fields": {
+          "type": "object",
+          "required": ["transaction_ref", "amount_iqd", "amount_text", "date", "date_text"],
+          "additionalProperties": false,
+          "properties": {
+            "transaction_ref": { "type": ["string", "null"], "description": "Exactly as written in the text (TX..., receipt number). null if absent. Must be a substring of `text`." },
+            "amount_iqd": { "type": ["integer", "null"], "minimum": 0, "description": "Normalised amount of the disputed transaction in IQD. Balances and limits mentioned in passing are NOT the amount." },
+            "amount_text": { "type": ["string", "null"], "description": "The span in the text the amount was taken from (ربع مليون, ١٠٠ الف, 50 alf). Must be a substring of `text`. This is what the grounding check verifies." },
+            "date": { "type": ["string", "null"], "format": "date", "description": "Resolved transaction date (ISO). Relative words are resolved against created_at." },
+            "date_text": { "type": ["string", "null"], "description": "The span the date came from (البارحة, يوم الاحد, قبل ساعة). Must be a substring of `text`." }
+          }
+        },
+        "flags": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "missing_reference",
+              "amount_unit_inferred",
+              "mixed_issue",
+              "instruction_in_text",
+              "ambiguous_category",
+              "money_already_gone"
+            ]
+          },
+          "description": "Things the pipeline must notice. mixed_issue and instruction_in_text always force escalate=true."
+        },
+        "escalate": { "type": "boolean", "description": "Gold decision: true when a person must look before routing (mixed issue, instruction in text, genuinely ambiguous). Low confidence at inference time is added by the pipeline, not labelled here." },
+        "escalate_reason": { "type": ["string", "null"], "description": "Short note the pipeline should produce when escalate=true." }
+      }
+    },
+
+    "draft_reply": {
+      "type": "string",
+      "description": "Gold first response in polite Iraqi dialect. Acknowledges, repeats the reference/amount it found, says which team is on it, promises nothing it cannot keep. Empty string when escalate=true and no safe reply exists."
+    },
+
+    "meta": {
+      "type": "object",
+      "required": ["split", "source", "edge_case", "style", "reviewed"],
+      "additionalProperties": false,
+      "properties": {
+        "split": { "enum": ["train", "val", "test"], "description": "test is locked on day one and never used for prompts, training or the threshold. val is used to pick the threshold." },
+        "source": { "enum": ["synthetic", "human"], "description": "human = the 50 tickets written by people, not the generator." },
+        "generator": { "type": ["string", "null"], "description": "Model that wrote this ticket, for disclosure." },
+        "edge_case": {
+          "type": ["string", "null"],
+          "enum": [null, "two_problems", "amount_in_words", "no_reference", "arabizi", "english_mix", "injection", "balance_not_amount", "relative_date", "long_rant", "very_short"]
+        },
+        "style": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "region": { "enum": ["baghdad", "najaf", "basra", "mosul", "erbil", "generic"] },
+            "tone": { "enum": ["calm", "worried", "angry", "polite", "confused"] },
+            "length": { "enum": ["very_short", "short", "medium", "long"] },
+            "typos": { "type": "boolean" },
+            "arabizi": { "type": "boolean" },
+            "english_mix": { "type": "boolean" }
+          }
+        },
+        "reviewed": { "type": "boolean", "description": "true if a human read this row during the 10% hand-check." }
+      }
+    }
+  }
+}

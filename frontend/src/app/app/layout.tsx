@@ -57,6 +57,13 @@ function Crumbs() {
   )
 }
 
+// The sidebar writes its open/collapsed state to this cookie; read it back so the choice survives a reload.
+// Safe on the client only: this layout shows a skeleton until the user loads, so the provider never renders on the server.
+function sidebarOpenFromCookie(): boolean {
+  if (typeof document === "undefined") return true
+  return !/(?:^|;\s*)sidebar_state=false(?:;|$)/.test(document.cookie)
+}
+
 export default function StaffLayout({ children }: { children: React.ReactNode }) {
   const { data: me, isLoading, isError } = useMe()
   const router = useRouter()
@@ -75,7 +82,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={sidebarOpenFromCookie()}>
       <Suspense>
         <AppSidebar />
       </Suspense>

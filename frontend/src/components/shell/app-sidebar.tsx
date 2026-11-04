@@ -15,6 +15,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar"
 import { useMe, useMyStats } from "@/lib/hooks"
 import { Brand } from "./brand"
@@ -33,6 +34,7 @@ function useIsActive() {
 }
 
 export function AppSidebar() {
+  const { state, isMobile } = useSidebar()
   const { data: me } = useMe()
   const { data: stats } = useMyStats(Boolean(me && me.role !== "customer"))
   const isActive = useIsActive()
@@ -42,8 +44,8 @@ export function AppSidebar() {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/app">
+            <SidebarMenuButton size="lg" asChild tooltip="Wallet Care · Home">
+              <Link href="/app" aria-label="Wallet Care home">
                 <Brand />
               </Link>
             </SidebarMenuButton>
@@ -76,7 +78,7 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
       <SidebarFooter>
-        <UserMenu />
+        <UserMenu collapsed={state === "collapsed" && !isMobile} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

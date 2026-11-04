@@ -30,7 +30,7 @@ export function UserAvatar({ name, className }: { name: string | null | undefine
   )
 }
 
-export function UserMenu({ compact = false }: { compact?: boolean }) {
+export function UserMenu({ compact = false, collapsed = false }: { compact?: boolean; collapsed?: boolean }) {
   const { data: me } = useMe()
   const logout = useLogout()
   const label = useLabel()
@@ -39,23 +39,32 @@ export function UserMenu({ compact = false }: { compact?: boolean }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className={cn("h-auto gap-2 px-2 py-1.5", !compact && "w-full justify-start")}>
-          <UserAvatar name={me?.full_name} />
+        <Button
+          variant="ghost"
+          aria-label={`Account menu for ${me?.full_name ?? "you"}`}
+          className={cn(
+            "h-auto gap-2 px-2 py-1.5",
+            !compact && "w-full justify-start",
+            // collapsed (icon) sidebar: just the avatar, same 32px box as the nav icons
+            "group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0",
+          )}
+        >
+          <UserAvatar name={me?.full_name} className="shrink-0" />
           {!compact ? (
             <>
-              <div className="grid flex-1 text-left text-sm leading-tight">
+              <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
                 <span className="truncate font-medium">{me?.full_name ?? "…"}</span>
                 <span className="text-muted-foreground truncate text-xs">
                   {label("roles", me?.role)}
                   {me?.team_name ? ` · ${me.team_name}` : ""}
                 </span>
               </div>
-              <ChevronsUpDown className="text-muted-foreground ml-auto size-4" />
+              <ChevronsUpDown className="text-muted-foreground ml-auto size-4 group-data-[collapsible=icon]:hidden" />
             </>
           ) : null}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-60" align="end" side={compact ? "bottom" : "top"}>
+      <DropdownMenuContent className="w-60" align="end" side={compact ? "bottom" : collapsed ? "right" : "top"}>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col gap-0.5">
             <span className="text-sm font-medium">{me?.full_name}</span>

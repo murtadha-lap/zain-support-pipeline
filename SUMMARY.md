@@ -14,22 +14,35 @@ A web app that triages customer support tickets for an Iraqi mobile-wallet opera
 
 | Role | Does |
 |---|---|
-| Customer | Sends requests, reads approved replies |
+| Customer | Sends requests (portal or Telegram), reads approved replies |
 | Agent | Reviews tickets the model was unsure about |
 | Team member | Edits and approves replies for their team |
-| Admin | Dashboard, batches, models, users, routing, Telegram bot, exports |
+| Admin | Dashboard, batches, models, users, routing, settings (incl. Telegram bot), exports |
+
+## Dataset and training
+
+[murtadha-lap/iraqi-wallet-support-tickets](https://huggingface.co/datasets/murtadha-lap/iraqi-wallet-support-tickets) on Hugging Face: 1,200 synthetic tickets (no real customer data).
+
+- **train** (900): fine-tunes the Qwen3.5-4B LoRA triage model
+- **val** (100): calibrates the confidence threshold
+- **test** (200): held out for the final model comparison
+- Staff corrections in the app export as new training rows for the next round.
 
 ## Stack
 
-Next.js 15 frontend · FastAPI backend · SQLite/PostgreSQL · models: offline mock (default), local vLLM Qwen, or Claude API.
+Next.js 15 frontend · FastAPI backend · SQLite/PostgreSQL · models: offline mock (default), local vLLM Qwen + LoRA, or Claude API · Telegram Bot API.
 
 ## Run
 
 ```bash
+# repo root: get the dataset (the demo seed reads data/train.jsonl)
+hf download murtadha-lap/iraqi-wallet-support-tickets data/train.jsonl data/val.jsonl data/test.jsonl data/examples.json --repo-type dataset --local-dir .
+
+# terminal 1: backend (http://localhost:8000)
 cd backend && python -m app.seed --reset --demo && python -m uvicorn app.main:app --port 8000
-cd frontend && pnpm install && pnpm dev     # http://localhost:3000
+
+# terminal 2: frontend (http://localhost:3000)
+cd frontend && pnpm install && pnpm dev
 ```
 
-Demo login: `admin@zain.local` / `Admin123!`
-
-Dataset (1,200 synthetic tickets): https://huggingface.co/datasets/murtadha-lap/iraqi-wallet-support-tickets
+Demo login: `admin@zain.local` / `Admin123!`. Connect Telegram in **Admin → Settings → Telegram bot**.

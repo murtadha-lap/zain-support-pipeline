@@ -4,6 +4,8 @@ Ticket triage for an Iraqi mobile-wallet support team. Customers write in Iraqi 
 
 Agentic AI Challenge Iraq · Topic 06 — Support Pipeline Automation.
 
+**Dataset:** [murtadha-lap/iraqi-wallet-support-tickets](https://huggingface.co/datasets/murtadha-lap/iraqi-wallet-support-tickets) on Hugging Face: 1,200 synthetic Iraqi-dialect tickets used to train and evaluate the triage model. See [Dataset](#dataset).
+
 > **Status: MVP.** The full system runs end to end (portal → triage → checks → queues → approval → reply) with the offline **mock** model as the default. The fine-tuned Qwen3.5-4B model plugs in through vLLM without code changes; see [Use the real model](#use-the-real-model).
 
 ## Contents
@@ -188,6 +190,8 @@ docker-compose.yml  PostgreSQL + backend + frontend (+ vLLM with --profile gpu)
 ## Dataset
 
 The dataset is published on Hugging Face: **[murtadha-lap/iraqi-wallet-support-tickets](https://huggingface.co/datasets/murtadha-lap/iraqi-wallet-support-tickets)**. It has 1,200 synthetic tickets (train 900 / val 100 / test 200, the test split locked) in the format of [`schemas/ticket.schema.json`](schemas/ticket.schema.json). They cover the nine categories, five regions plus generic dialect, very short to long tickets, and planted edge cases: no reference, two problems in one, amounts in words, Arabizi, English mix, text that tries to instruct the model.
+
+It is the training data for the triage model: **train** (900) fine-tunes the Qwen3.5-4B LoRA adapter, **val** (100) calibrates the confidence threshold and picks checkpoints, and **test** (200) is held out for the final comparison (prompt-only vs fine-tuned vs cloud). Corrections that staff make in the app export as more training rows (`/api/export/corrections.jsonl`) for the next LoRA round.
 
 Download the splits into `data/` (git-ignored), where the demo seed and the examples below expect them:
 

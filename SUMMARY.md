@@ -13,7 +13,7 @@ A web app that triages customer support tickets for an Iraqi mobile-wallet opera
 ## Roles
 
 | Role | Does |
-|---|---|
+| --- | --- |
 | Customer | Sends requests (portal or Telegram), reads approved replies |
 | Agent | Reviews tickets the model was unsure about |
 | Team member | Edits and approves replies for their team |

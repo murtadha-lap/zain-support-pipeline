@@ -307,6 +307,24 @@ class SettingsUpdate(BaseModel):
     batch_concurrency: int | None = Field(default=None, ge=1, le=64)
 
 
+class TelegramOut(APIModel):
+    enabled: bool
+    token_set: bool
+    token_hint: str | None
+    bot_username: str | None
+    bot_name: str | None
+    chats: int
+    state: str  # running | error | stopped
+    last_error: str | None
+    last_update_at: datetime | None
+
+
+class TelegramUpdate(BaseModel):
+    enabled: bool | None = None
+    # write-only; "" removes the saved token
+    bot_token: str | None = Field(default=None, max_length=128, pattern=r"^(\d{5,16}:[A-Za-z0-9_-]{20,64})?$")
+
+
 # --------------------------------------------------------------------------- triage / tickets
 
 class CheckOut(APIModel):

@@ -13,6 +13,7 @@ Agentic AI Challenge Iraq · Topic 06 — Support Pipeline Automation.
 - [How one ticket flows](#how-one-ticket-flows)
 - [Quick start](#quick-start-no-docker)
 - [Models](#models)
+- [Telegram bot](#telegram-bot)
 - [Configuration](#configuration)
 - [Run with Docker](#run-with-docker)
 - [Tests](#tests)
@@ -130,6 +131,17 @@ The mock is a keyword classifier for testing the flow; its accuracy says nothing
 ### Cloud models
 
 Set the key in the backend environment before starting it (`ANTHROPIC_API_KEY`, or the variable named in the model's `api_key_env`; the database stores only the variable name, never the key). Enable the row in **Admin → Models**. Cloud models only process uploaded synthetic tickets unless **Admin → Settings → Allow cloud for live tickets** is on, because customer text must not leave the operator's server. Claude requests use server-side refusal fallback by default (a switch on the model form).
+
+## Telegram bot
+
+Customers can write to a Telegram bot instead of the portal.
+
+1. In Telegram, open **@BotFather**, send `/newbot` and copy the token.
+2. In **Admin → Settings → Telegram bot**, paste the token and press **Save & connect**. The backend checks it with Telegram, stores it in the database and never returns it (only the last 4 characters).
+3. Each private text message to the bot becomes a `telegram` ticket for a customer account created for that chat. It is auto-triaged, checked and routed or escalated like any ticket, and the customer gets the ticket number. Messages sent while that customer has an open Telegram ticket are added to it as follow-ups; after it is resolved, the next message opens a new ticket.
+4. **Approve & send** on a Telegram ticket delivers the reply to the chat. The ticket timeline shows whether delivery worked.
+
+The backend uses long polling, so no public URL or webhook is needed. Telegram allows one polling process per bot, so run a single backend process for a given token. **Receive messages** off stops new tickets; replies to existing Telegram tickets are still delivered while a token is saved.
 
 ## Configuration
 

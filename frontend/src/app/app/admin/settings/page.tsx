@@ -28,6 +28,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { PageHeader } from "@/components/shared/page"
 import { QueryError, SaveBar } from "@/components/admin/common"
 import { useSettings } from "@/components/admin/queries"
+import { TelegramCard } from "@/components/admin/telegram-card"
 import { api, errorMessage } from "@/lib/api"
 import { qk } from "@/lib/hooks"
 import type { Settings } from "@/lib/types"
@@ -342,6 +343,8 @@ export default function SettingsPage() {
                 })}
               </CardContent>
             </Card>
+
+            <TelegramCard />
           </div>
 
           <SaveBar

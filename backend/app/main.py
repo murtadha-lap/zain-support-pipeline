@@ -8,7 +8,8 @@ from .config import get_config
 from .db import init_db, new_session
 from .logging_utils import get_logger, setup_logging
 from .models import Batch, Ticket, utcnow
-from .routers import auth, batches, export, health, meta, models, routing, settings, stats, teams, tickets, users
+from .routers import auth, batches, export, health, meta, models, routing, settings, stats, teams, telegram, tickets, users
+from .services.telegram import poller as telegram_poller
 
 
 def _startup() -> None:
@@ -33,7 +34,9 @@ async def lifespan(app: FastAPI):
     setup_logging(cfg.log_level)
     _startup()
     get_logger("main").info("backend started (db=%s)" % cfg.database_url.split("@")[-1])
+    telegram_poller.start()  # idles unless a bot token is saved and the bot is on
     yield
+    await telegram_poller.stop()
 
 
 app = FastAPI(
@@ -51,5 +54,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-for module in (auth, meta, users, teams, routing, models, settings, stats, tickets, batches, export, health):
+for module in (auth, meta, users, teams, routing, models, settings, telegram, stats, tickets, batches, export, health):
     app.include_router(module.router)

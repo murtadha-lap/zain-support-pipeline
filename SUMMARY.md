@@ -4,11 +4,11 @@ A web app that triages customer support tickets for an Iraqi mobile-wallet opera
 
 ## How it works
 
-1. A customer sends a request (or an admin uploads a batch).
+1. A customer sends a request from the portal or the Telegram bot (or an admin uploads a batch).
 2. A model proposes the category, priority, reference/amount/date and a draft reply.
 3. **Code checks it:** valid format, details really appear in the text, confidence above threshold, only one problem.
 4. Checks pass → routed to the right team queue. Any fail → escalated to a human agent.
-5. A person edits and approves the reply. Nothing is sent automatically.
+5. A person edits and approves the reply. Nothing is sent automatically. Telegram replies go back to the customer's chat.
 
 ## Roles
 
@@ -17,7 +17,7 @@ A web app that triages customer support tickets for an Iraqi mobile-wallet opera
 | Customer | Sends requests, reads approved replies |
 | Agent | Reviews tickets the model was unsure about |
 | Team member | Edits and approves replies for their team |
-| Admin | Dashboard, batches, models, users, routing, exports |
+| Admin | Dashboard, batches, models, users, routing, Telegram bot, exports |
 
 ## Stack
 

@@ -13,6 +13,7 @@ export const qk = {
   routing: ["routing"] as const,
   models: ["models"] as const,
   settings: ["settings"] as const,
+  telegram: ["telegram"] as const,
   users: (q?: object) => ["users", q ?? {}] as const,
   tickets: (q?: object) => ["tickets", q ?? {}] as const,
   ticket: (id: number | string) => ["ticket", String(id)] as const,

@@ -42,6 +42,8 @@ export type DecisionAction =
   | "assign"
   | "reopen"
   | "draft_saved"
+  | "telegram_sent"
+  | "telegram_failed"
 export type BatchStatus = "queued" | "running" | "completed" | "failed"
 
 export interface Option<K extends string = string> {
@@ -125,6 +127,18 @@ export interface Settings {
   allow_cloud_for_live_tickets: boolean
   max_retries: number
   batch_concurrency: number
+}
+
+export interface TelegramStatus {
+  enabled: boolean
+  token_set: boolean
+  token_hint: string | null
+  bot_username: string | null
+  bot_name: string | null
+  chats: number
+  state: "running" | "error" | "stopped"
+  last_error: string | null
+  last_update_at: string | null
 }
 
 export interface ExtractedFields {

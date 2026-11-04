@@ -86,6 +86,8 @@ class DecisionAction(str, Enum):
     assign = "assign"
     reopen = "reopen"
     draft_saved = "draft_saved"
+    telegram_sent = "telegram_sent"
+    telegram_failed = "telegram_failed"
 
 
 class BatchStatus(str, Enum):

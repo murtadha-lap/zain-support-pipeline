@@ -6,7 +6,7 @@ All datetimes are stored as UTC.
 from datetime import datetime, timezone
 from typing import Any
 
-from sqlalchemy import JSON, Column, Text
+from sqlalchemy import JSON, BigInteger, Column, Text
 from sqlmodel import Field, SQLModel
 
 
@@ -74,6 +74,17 @@ class Setting(SQLModel, table=True):
 
     key: str = Field(primary_key=True, max_length=64)
     value: Any = Field(default=None, sa_column=Column(JSON))
+
+
+class TelegramChat(SQLModel, table=True):
+    """A Telegram private chat linked to the customer account created for it."""
+
+    __tablename__ = "telegram_chats"
+
+    chat_id: int = Field(sa_column=Column(BigInteger, primary_key=True, autoincrement=False))
+    user_id: int = Field(foreign_key="users.id", index=True)
+    username: str | None = Field(default=None, max_length=255)
+    created_at: datetime = Field(default_factory=utcnow)
 
 
 class Ticket(SQLModel, table=True):

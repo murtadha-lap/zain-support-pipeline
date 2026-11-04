@@ -9,6 +9,8 @@ import {
   RefreshCw,
   RotateCcw,
   Route,
+  Send,
+  SendHorizontal,
   Tags,
   UserCheck,
   XCircle,
@@ -33,6 +35,8 @@ const ACTION: Record<DecisionAction, { icon: React.ElementType; tone: string; ve
   assign: { icon: UserCheck, tone: "bg-muted text-foreground", verb: "changed the assignee" },
   reopen: { icon: RotateCcw, tone: "bg-info/10 text-info", verb: "reopened the ticket" },
   draft_saved: { icon: PenLine, tone: "bg-muted text-muted-foreground", verb: "edited the draft" },
+  telegram_sent: { icon: Send, tone: "bg-success/10 text-success", verb: "delivered the reply on Telegram" },
+  telegram_failed: { icon: SendHorizontal, tone: "bg-destructive/10 text-destructive", verb: "could not deliver the reply on Telegram" },
 }
 
 const FIELD_LABEL: Record<string, string> = {

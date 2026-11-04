@@ -27,6 +27,7 @@ from ..schemas import (
 from ..serializers import fields_out, ticket_detail, ticket_list_items
 from ..services.pipeline import PipelineError, as_utc, auto_triage_ticket, triage_ticket
 from ..services.routing import get_settings, route_for
+from ..services.telegram import send_ticket_reply
 
 router = APIRouter(prefix="/api/tickets", tags=["tickets"])
 
@@ -257,7 +258,7 @@ def route_ticket(ticket_id: int, body: RouteIn, session: Session = Depends(get_s
 
 
 @router.post("/{ticket_id}/approve", response_model=TicketDetail)
-def approve(ticket_id: int, body: ApproveIn, session: Session = Depends(get_session),
+def approve(ticket_id: int, body: ApproveIn, background: BackgroundTasks, session: Session = Depends(get_session),
             user: User = Depends(require_roles("agent", "admin", "team_member"))):
     t = load_ticket(session, ticket_id, user)
     if t.status in ("new", "processing"):
@@ -272,7 +273,10 @@ def approve(ticket_id: int, body: ApproveIn, session: Session = Depends(get_sess
     t.status = "resolved"
     t.resolved_at = utcnow()
     add_decision(session, t, user, "approve", before, {"status": "resolved"}, note=body.note, draft_edited=edited)
-    return _touch_and_detail(session, t, user)
+    detail = _touch_and_detail(session, t, user)
+    if t.channel == "telegram":
+        background.add_task(send_ticket_reply, t.id, draft)
+    return detail
 
 
 @router.post("/{ticket_id}/escalate", response_model=TicketDetail)

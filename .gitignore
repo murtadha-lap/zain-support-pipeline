@@ -21,7 +21,6 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Dataset splits are published on Hugging Face (download into data/)
-/data/*.jsonl
-/data/*.json
+# Dataset lives on Hugging Face (download into data/)
+/data/
 .cache/

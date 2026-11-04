@@ -1,6 +1,6 @@
 # Dataset generation spec (synthetic Iraqi-dialect wallet support tickets)
 
-Each row = one JSON object on one line (JSONL). Row shape = `schemas/ticket.schema.json`. Look at `data/examples.json` (`tickets` array) for 13 gold rows. **Ignore** its `sft_chat_format`, `rl_stage_optional`: the dataset has no system prompt, only ticket + labels + draft reply.
+Each row = one JSON object on one line (JSONL). Row shape = `schemas/ticket.schema.json`. Look at `examples.json` in the [Hugging Face dataset](https://huggingface.co/datasets/murtadha-lap/iraqi-wallet-support-tickets) (`tickets` array) for 13 gold rows. **Ignore** its `sft_chat_format`, `rl_stage_optional`: the dataset has no system prompt, only ticket + labels + draft reply.
 
 Everything is invented: names, phone numbers (random-looking, e.g. 0771xxxxxxx), references, amounts. No real people or companies except the wallet brand "زين كاش".
 

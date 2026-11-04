@@ -24,7 +24,7 @@ Tests: `python -m pytest` (run it from `backend/`). The tests use a temporary SQ
 `python -m app.seed` is idempotent.
 
 - `--reset` drops all tables and creates them again.
-- `--demo` imports 60 rows from `data/train.jsonl`, spread across the categories. They become live tickets owned by the demo customers. Only the text, channel and created_at are imported, not the gold labels. It then runs one mock batch over them and makes a few approvals and assignments, so every queue and dashboard has data.
+- `--demo` imports 60 rows from `data/train.jsonl` (download it first from [Hugging Face](https://huggingface.co/datasets/murtadha-lap/iraqi-wallet-support-tickets); skipped if missing), spread across the categories. They become live tickets owned by the demo customers. Only the text, channel and created_at are imported, not the gold labels. It then runs one mock batch over them and makes a few approvals and assignments, so every queue and dashboard has data.
 
 | role | email | password |
 |---|---|---|

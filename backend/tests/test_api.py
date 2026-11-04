@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+import pytest
+
 REPO = Path(__file__).resolve().parent.parent.parent
 
 ADMIN = ("admin@zain.local", "Admin123!")
@@ -166,8 +168,11 @@ def test_admin_crud_and_model_test(client, login):
 
 
 def test_batch_upload_with_gold_and_exports(client, login):
+    val = REPO / "data" / "val.jsonl"
+    if not val.is_file():
+        pytest.skip("dataset not downloaded (see README: Dataset)")
     admin = login(*ADMIN)
-    lines = (REPO / "data" / "val.jsonl").read_text(encoding="utf-8").splitlines()[:12]
+    lines = val.read_text(encoding="utf-8").splitlines()[:12]
     r = admin.post("/api/batches/upload", files={"file": ("val.jsonl", ("\n".join(lines)).encode("utf-8"), "application/json")},
                    data={"name": "val sample", "run": "true"})
     assert r.status_code == 200, r.text

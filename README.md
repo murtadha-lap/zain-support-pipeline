@@ -167,7 +167,7 @@ cd frontend && pnpm exec tsc --noEmit && pnpm lint && pnpm build
 ```text
 backend/            FastAPI app: routers, pipeline, checks, confidence, LLM providers, seed, tests
 frontend/           Next.js app: portal, workspace, admin console, shared components
-data/               1,200 synthetic tickets: train / val / test, raw per-agent files, examples
+data/               raw per-agent ticket files (the published splits live on Hugging Face)
 schemas/            ticket.schema.json (dataset row format)
 scripts/            validate_dataset.py, dialect_check.py, build_dataset.py
 docs/               api-contract.md, vllm.md, generation_spec.md
@@ -176,13 +176,21 @@ docker-compose.yml  PostgreSQL + backend + frontend (+ vLLM with --profile gpu)
 
 ## Dataset
 
-`data/` holds 1,200 synthetic tickets (train 900 / val 100 / test 200, the test split locked) in the format of [`schemas/ticket.schema.json`](schemas/ticket.schema.json). They cover the nine categories, five regions plus generic dialect, very short to long tickets, and planted edge cases: no reference, two problems in one, amounts in words, Arabizi, English mix, text that tries to instruct the model.
+The dataset is published on Hugging Face: **[murtadha-lap/iraqi-wallet-support-tickets](https://huggingface.co/datasets/murtadha-lap/iraqi-wallet-support-tickets)**. It has 1,200 synthetic tickets (train 900 / val 100 / test 200, the test split locked) in the format of [`schemas/ticket.schema.json`](schemas/ticket.schema.json). They cover the nine categories, five regions plus generic dialect, very short to long tickets, and planted edge cases: no reference, two problems in one, amounts in words, Arabizi, English mix, text that tries to instruct the model.
+
+Download the splits into `data/` (they are git-ignored):
+
+```bash
+hf download murtadha-lap/iraqi-wallet-support-tickets --repo-type dataset --include "data/*" --local-dir .
+```
+
+`data/raw/` keeps the per-agent source files. The scripts:
 
 - `scripts/validate_dataset.py`: grounding, date resolution, flags, escalation and draft rules
 - `scripts/dialect_check.py`: flags Modern Standard, Levantine, Egyptian and Gulf wording
 - `scripts/build_dataset.py`: merges `data/raw/`, refuses to build while near-duplicates remain, makes stratified splits
 
-To evaluate any model, upload `data/val.jsonl` or `data/test.jsonl` in **Admin → Batches → Upload**: the batch page shows category accuracy, macro F1, per-category F1, field exact match, invented references, escalation agreement and the most confused category pairs.
+To evaluate any model, download the dataset (above), then upload `data/val.jsonl` or `data/test.jsonl` in **Admin → Batches → Upload**: the batch page shows category accuracy, macro F1, per-category F1, field exact match, invented references, escalation agreement and the most confused category pairs.
 
 ## Failure modes and how they are handled
 
